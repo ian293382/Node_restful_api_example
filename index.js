@@ -1,39 +1,18 @@
 import express from 'express';
 import mysql from 'mysql';
-import { resolve } from 'path';
+import sequlizePackage from 'sequelize';
+const {DataTypes, Model, Seqielize} = sequlizePackage;
 
-const pool = mysql.createPool({
+const sqlize = new Seqielize ('TodoList', 'root', '',{
     host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: '',
-    database: 'ToDoList'
-});
+    dialect: 'mysql'
+})
+
 
 const app = express();
 const port = 3000;
 
-//建立中間器
-app.use(express.json());
 
-// 改善POST call back 方式
-function getConnection() {
-    return new Promise((resolve, reject) => {
-        pool.getConnection((err, conn)=> {
-            if (err) reject(err);
-            else resolve(conn);
-        });
-    });
-}
-
-function executeQuery(conn, query, data) {
-    return new Promise((resolve, reject) => {
-        conn.query(query, data, (err, results, fields) => {
-            if (err) reject(err);
-            else resolve({ results, fields });
-        });
-    });
-}
 app.post('/', async(req, res) => {
     const conn = await getConnection();
     const {results, fields}= await executeQuery(conn, 'INSERT INTO Todo VALUES(?,?)',[
